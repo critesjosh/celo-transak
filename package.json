@@ -1,0 +1,36 @@
+{
+  "name": "@transak/egld-elrond-mainnet",
+  "version": "1.0.4",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha",
+    "restricted-publish": "npm publish --access restricted"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@celo/contractkit": "^1.0.0-beta3",
+    "bignumber.js": "^9.0.1",
+    "chai": "^4.2.0",
+    "dotenv": "^8.2.0",
+    "moment": "^2.29.1",
+    "web3": "^1.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "7.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Transak/eGLD-elrond-mainet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Transak/eGLD-elrond-mainet/issues"
+  },
+  "homepage": "https://github.com/Transak/eGLD-elrond-mainet#readme",
+  "description": ""
+}
