@@ -80,7 +80,7 @@ async function getTransaction(hash, network) {
     }
 }
 
-async function sendTransaction(to, amount, network, privateKey, feeCurrency = 'celo') {
+async function sendTransaction(to, amount, network, privateKey, token = 'CELO', feeCurrency = 'CELO') {
     try {
         //Set network
         let networkDetails = (network === 'main') ? config.networks.main : config.networks.testnet;
@@ -96,18 +96,31 @@ async function sendTransaction(to, amount, network, privateKey, feeCurrency = 'c
 
         let accounts = await contractKit.connection.getAccounts()
         let account = accounts[0]
-        let balance = await contractKit.connection.getBalance(account)
 
-        //Check balance
-        const currentBalance = Number(_toDecimal(balance, 18));
-        if (currentBalance < amount) throw new Error('Insufficient balance in wallet')
+        let balance, tx, currentBalance
 
-        let tx = await contractKit.sendTransaction({
-            from: account,
-            to: to,
-            value: amount,
-            feeCurrency: gasCostCryptoCurrency
-        })
+        if (token.toUpperCase() === 'CELO'){
+            balance = await contractKit.connection.getBalance(account)
+            currentBalance = Number(_toDecimal(balance, 18));
+            if (currentBalance < Number(amount)) throw new Error('Insufficient CELO balance in wallet')
+
+            tx = await contractKit.sendTransaction({
+                from: account,
+                to: to,
+                value: amount,
+                feeCurrency: gasCostCryptoCurrency
+            })
+        }
+        else if (token.toUpperCase() === 'CUSD'){
+            stableToken = await contractKit.contracts.getStableToken()
+            balance = await stableToken.balanceOf(account)
+            currentBalance = Number(_toDecimal(balance, 18));
+            if (currentBalance < Number(amount)) throw new Error('Insufficient cUSD balance in wallet')
+
+            tx = await stableToken.transfer(to, amount).send({ from: account, feeCurrency: gasCostCryptoCurrency })
+        } else {
+            throw new Error('Unrecognized token')
+        }
 
         let receipt = await tx.waitReceipt()
 
