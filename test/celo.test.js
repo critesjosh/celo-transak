@@ -116,6 +116,36 @@ describe("CELO-mainet module", () => {
             'celo',
             'celo')).to.be.rejectedWith(Error)
     });
+    
+    it("should fail sending too much cUSD", async function () {
+        this.timeout(mainTimeout * 3);
+
+        amount = celoLib.getBalance(from, network)
+        amount += 1
+
+        await expect(celoLib.sendTransaction(
+            toWalletAddress,
+            amount,
+            network,
+            privateKey,
+            'cusd',
+            'cusd')).to.be.rejectedWith(Error)
+    });
+
+    it("should fail with unrecognized token", async function () {
+        this.timeout(mainTimeout * 3);
+
+        amount = celoLib.getBalance(from, network)
+        amount += 1
+
+        await expect(celoLib.sendTransaction(
+            toWalletAddress,
+            amount,
+            network,
+            privateKey,
+            'aaa',
+            'aaa')).to.be.rejectedWith(Error)
+    });
 
     it("should getTransaction", async function () {
         this.timeout(mainTimeout * 3);
