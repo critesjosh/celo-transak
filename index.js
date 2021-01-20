@@ -101,8 +101,7 @@ async function sendTransaction(to, amount, network, privateKey, token = 'CELO', 
 
         if (token.toUpperCase() === 'CELO'){
             balance = await contractKit.connection.getBalance(account)
-            currentBalance = Number(_toDecimal(balance, 18));
-            if (currentBalance < Number(amount)) throw new Error('Insufficient CELO balance in wallet')
+            if (Number(_toDecimal(balance, 18)) < Number(_toDecimal(amount, 18))) throw new Error('Insufficient CELO balance in wallet')
 
             tx = await contractKit.sendTransaction({
                 from: account,
@@ -113,9 +112,9 @@ async function sendTransaction(to, amount, network, privateKey, token = 'CELO', 
         }
         else if (token.toUpperCase() === 'CUSD'){
             stableToken = await contractKit.contracts.getStableToken()
+            
             balance = await stableToken.balanceOf(account)
-            currentBalance = Number(_toDecimal(balance, 18));
-            if (currentBalance < Number(amount)) throw new Error('Insufficient cUSD balance in wallet')
+            if (Number(_toDecimal(balance, 18)) < Number(_toDecimal(amount, 18))) throw new Error('Insufficient cUSD balance in wallet')
 
             tx = await stableToken.transfer(to, amount).send({ from: account, feeCurrency: gasCostCryptoCurrency })
         } else {
