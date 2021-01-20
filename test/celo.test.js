@@ -1,6 +1,9 @@
 const celoLib = require('../index');
-const {expect, assert} = require('chai');
 require("dotenv").config({path: `${__dirname}/.env`})
+const chai = require('chai')
+const expect = chai.expect
+const assert = chai.assert
+chai.use(require("chai-as-promised"))
 
 let mainTimeout = 3000
 
@@ -8,6 +11,7 @@ let toWalletAddress = process.env.TOWALLETADDRESS
 let network = process.env.NETWORK
 let privateKey = process.env.PRIVATE_KEY
 let amount =  "1"
+let from
 
 const runtime = {};
 
@@ -65,7 +69,7 @@ describe("CELO-mainet module", () => {
         expect(result === true);
     });
 
-    it("should sendTransaction", async function () {
+    it("should sendTransaction sending CELO", async function () {
         this.timeout(mainTimeout * 3);
 
         const result = await celoLib.sendTransaction(
@@ -73,10 +77,44 @@ describe("CELO-mainet module", () => {
             amount,
             network,
             privateKey,
-            'cusd');
+            'celo',
+            'celo');
 
         assert.hasAllKeys(result, keys.sendTransaction);
         runtime.transactionHash = result.transactionHash;
+    });
+
+    it("should sendTransaction sending cUSD", async function () {
+        this.timeout(mainTimeout * 3);
+
+        const result = await celoLib.sendTransaction(
+            toWalletAddress,
+            amount,
+            network,
+            privateKey,
+            'cusd',
+            'cusd');
+        
+        // for use in next test
+        from = result.from
+
+        assert.hasAllKeys(result, keys.sendTransaction);
+        runtime.transactionHash = result.transactionHash;
+    });
+
+    it("should fail when sending too much CELO", async function () {
+        this.timeout(mainTimeout * 3);
+
+        amount = celoLib.getBalance(from, network)
+        amount += 1
+
+        await expect(celoLib.sendTransaction(
+            toWalletAddress,
+            amount,
+            network,
+            privateKey,
+            'celo',
+            'celo')).to.be.rejectedWith(Error)
     });
 
     it("should getTransaction", async function () {
