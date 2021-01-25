@@ -1,4 +1,4 @@
-# celo-transak
+# Celo-Transak
 
 A package for integrating Celo with Transak.
 
