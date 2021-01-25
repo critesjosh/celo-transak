@@ -27,11 +27,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Transak/eGLD-elrond-mainet.git"
+    "url": "git+https://github.com/Transak/celo-mainnet.git"
   },
   "bugs": {
-    "url": "https://github.com/Transak/eGLD-elrond-mainet/issues"
+    "url": "https://github.com/Transak/celo-mainnet/issues"
   },
-  "homepage": "https://github.com/Transak/eGLD-elrond-mainet#readme",
+  "homepage": "https://github.com/Transak/celo-mainnet#readme",
   "description": ""
 }
