@@ -27,11 +27,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Transak/celo-mainnet.git"
+    "url": "git+https://github.com/critesjosh/celo-transak.git"
   },
   "bugs": {
-    "url": "https://github.com/Transak/celo-mainnet/issues"
+    "url": "https://github.com/critesjosh/celo-transak/issues"
   },
-  "homepage": "https://github.com/Transak/celo-mainnet#readme",
+  "homepage": "https://github.com/critesjosh/celo-transak#readme",
   "description": ""
 }
