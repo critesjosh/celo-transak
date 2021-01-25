@@ -44,7 +44,8 @@ const keys = {
         "feeCurrency",
         "gatewayFee",
         "gatewayFeeRecipient",
-        "tx"
+        "tx",
+        "receipt"
     ]
 };
 

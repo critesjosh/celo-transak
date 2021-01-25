@@ -53,6 +53,7 @@ async function getTransaction(hash, network) {
             const web3 = new Web3(networkDetails.provider)
             const contractKit = ContractKit.newKitFromWeb3(web3)
             let tx = await contractKit.connection.getTransaction(hash)
+            let receipt = await contractKit.connection.getTransactionReceipt(hash)
 
             if (tx) {
                 response = {
@@ -70,7 +71,8 @@ async function getTransaction(hash, network) {
                     value: Number(_toDecimal(tx.value, 18)),
                     from: tx.from,
                     to: tx.to,
-                    nonce: tx.nonce
+                    nonce: tx.nonce,
+                    receipt: receipt
                 }
             } else resonse = null
         }
