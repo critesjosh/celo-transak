@@ -18,17 +18,29 @@ function getWalletLink(walletAddress, network) {
     return networkDetails.walletLink(walletAddress);
 }
 
-async function getBalance(address, network) {
+async function getBalance(address, network, token = 'CELO') {
     try {
         let networkDetails = (network === 'main') ? config.networks.main : config.networks.testnet;
         const web3 = new Web3(networkDetails.provider);
         let contractKit = ContractKit.newKitFromWeb3(web3)
-        const rawBalance = await contractKit.connection.getBalance(address)
+
+        let rawBalance
+        if (token.toUpperCase() === 'CELO'){
+            rawBalance = await contractKit.connection.getBalance(address)
+        } 
+        else if (token.toUpperCase() === 'CUSD') {
+            stableToken = await contractKit.contracts.getStableToken()
+            rawBalance = await stableToken.balanceOf(address)
+        } 
+        else {
+            throw new Error("Could not get balance. Token not recognized.")
+        }
+
         if (rawBalance) return Number(_toDecimal(rawBalance, 18));
-        else return 0;
+        else throw new Error("Could not get balance.");
     } catch (e) {
         console.error(e)
-        return 0;
+        return "error";
     }
 }
 
@@ -46,6 +58,7 @@ async function isValidWalletAddress(address, network) {
 
 async function getTransaction(hash, network) {
     let response = false;
+    let amount, token
     try {
         if (hash) {
             let networkDetails = (network === 'main') ? config.networks.main : config.networks.testnet;
@@ -54,6 +67,37 @@ async function getTransaction(hash, network) {
             const contractKit = ContractKit.newKitFromWeb3(web3)
             let tx = await contractKit.connection.getTransaction(hash)
             let receipt = await contractKit.connection.getTransactionReceipt(hash)
+            celoToken = await contractKit.contracts.getGoldToken()
+            stableToken = await contractKit.contracts.getStableToken()
+
+            let transferLog = receipt.logs[0]
+            // check if the transfer is cUSD or CELO ERC20 interface
+            // if so, decode the logs to get the token transfer amount
+            if(transferLog && (transferLog.address == celoToken.address || transferLog.address == stableToken.address)){
+                token = transferLog.address === celoToken.address ? "CELO" : "cUSD"
+                if(transferLog.address != celoToken.address && transferLog.address != stableToken.address) throw new Error("Token transfer is not CELO or cUSD.")
+                
+                let txInfo = web3.eth.abi.decodeLog([{
+                    type: 'address',
+                    name: 'from',
+                    indexed: true
+                },{
+                    type: 'address',
+                    name: 'to',
+                    indexed: true
+                },{
+                    type: 'uint256',
+                    name: 'value'
+                }],
+                transferLog.data,
+                [transferLog.topics[1], transferLog.topics[2]])
+
+                amount = txInfo.value
+            }
+            else {
+                token = 'CELO'
+                amount = tx.value
+            }
 
             if (tx) {
                 response = {
@@ -68,7 +112,8 @@ async function getTransaction(hash, network) {
                     gatewayFee: tx.gatewayFee,
                     gatewayFeeRecipient: tx.gatewayFeeRecipient,
                     gasCostInCrypto: Number(_toDecimal((tx.gasPrice * tx.gasLimit), 18)),
-                    value: Number(_toDecimal(tx.value, 18)),
+                    amount: Number(_toDecimal(amount, 18)),
+                    token: token,
                     from: tx.from,
                     to: tx.to,
                     nonce: tx.nonce,
@@ -101,6 +146,8 @@ async function sendTransaction(to, amount, network, privateKey, token = 'CELO', 
 
         let balance, tx, currentBalance
 
+        //Check balance
+
         if (token.toUpperCase() === 'CELO'){
             balance = await contractKit.connection.getBalance(account)
             if (Number(_toDecimal(balance, 18)) < Number(_toDecimal(amount, 18))) throw new Error('Insufficient CELO balance in wallet')
@@ -114,7 +161,6 @@ async function sendTransaction(to, amount, network, privateKey, token = 'CELO', 
         }
         else if (token.toUpperCase() === 'CUSD'){
             stableToken = await contractKit.contracts.getStableToken()
-            
             balance = await stableToken.balanceOf(account)
             if (Number(_toDecimal(balance, 18)) < Number(_toDecimal(amount, 18))) throw new Error('Insufficient cUSD balance in wallet')
 
