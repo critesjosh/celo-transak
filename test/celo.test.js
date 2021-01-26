@@ -1,9 +1,9 @@
 const celoLib = require('../index');
-require("dotenv").config({path: `${__dirname}/.env`})
 const chai = require('chai')
 const expect = chai.expect
 const assert = chai.assert
 chai.use(require("chai-as-promised"))
+require("dotenv").config({path: `${__dirname}/.env`})
 
 let mainTimeout = 3000
 
@@ -30,7 +30,7 @@ const keys = {
         "transactionLink"
     ],
     getTransaction : [
-        "value",
+        "amount",
         "date",
         "from",
         "gasCostInCrypto",
@@ -45,7 +45,8 @@ const keys = {
         "gatewayFee",
         "gatewayFeeRecipient",
         "tx",
-        "receipt"
+        "receipt",
+        "token"
     ]
 };
 
@@ -57,12 +58,6 @@ const allKeys = (result, keys) => {
 };
 
 describe("CELO-mainet module", () => {
-
-    it("should getBalance", async function () {
-        this.timeout(mainTimeout * 3);
-        const result = await celoLib.getBalance(toWalletAddress, network);
-        expect(typeof result === "number");
-    });
 
     it("should isValidWalletAddress", async function () {
         this.timeout(mainTimeout * 3);
@@ -82,7 +77,7 @@ describe("CELO-mainet module", () => {
             'celo');
 
         assert.hasAllKeys(result, keys.sendTransaction);
-        runtime.transactionHash = result.transactionHash;
+        runtime.celoTransactionHash = result.transactionHash;
     });
 
     it("should sendTransaction sending cUSD", async function () {
@@ -95,15 +90,14 @@ describe("CELO-mainet module", () => {
             privateKey,
             'cusd',
             'cusd');
-        
-        // for use in next test
+
         from = result.from
 
         assert.hasAllKeys(result, keys.sendTransaction);
-        runtime.transactionHash = result.transactionHash;
+        runtime.cusdTransactionHash = result.transactionHash;
     });
 
-    it("should fail when sending too much CELO", async function () {
+    it("should fail sending too much CELO", async function () {
         this.timeout(mainTimeout * 3);
 
         amount = celoLib.getBalance(from, network)
@@ -117,7 +111,7 @@ describe("CELO-mainet module", () => {
             'celo',
             'celo')).to.be.rejectedWith(Error)
     });
-    
+
     it("should fail sending too much cUSD", async function () {
         this.timeout(mainTimeout * 3);
 
@@ -148,9 +142,31 @@ describe("CELO-mainet module", () => {
             'aaa')).to.be.rejectedWith(Error)
     });
 
-    it("should getTransaction", async function () {
+    it("should get Celo Transaction", async function () {
         this.timeout(mainTimeout * 3);
-        const result = await celoLib.getTransaction(runtime.transactionHash, network);
+        const result = await celoLib.getTransaction(runtime.celoTransactionHash, network);
+        expect(result.amount == amount)
         assert.hasAllKeys(result, keys.getTransaction);
+    });
+
+    it("should get cUSD Transaction", async function () {
+        this.timeout(mainTimeout * 3);
+        const result = await celoLib.getTransaction(runtime.cusdTransactionHash, network);
+        expect(result.amount == amount)
+        assert.hasAllKeys(result, keys.getTransaction);
+    });
+
+    it("should get CELO Balance", async function () {
+        this.timeout(mainTimeout * 3);
+        const result = await celoLib.getBalance(toWalletAddress, network);
+        expect(typeof result === "number");
+        expect(result != 0);
+    });
+
+    it("should get cUSD Balance", async function () {
+        this.timeout(mainTimeout * 3);
+        const result = await celoLib.getBalance(toWalletAddress, network, "cUSD");
+        expect(typeof result === "number");
+        expect(result != 0);
     });
 });
