@@ -127,7 +127,7 @@ async function getTransaction(hash, network) {
     }
 }
 
-async function sendTransaction(to, amount, network, privateKey, token = 'CELO', feeCurrency = 'CELO') {
+async function sendTransaction({to, amount, network, privateKey, token = 'CELO', feeCurrency = 'CELO'}) {
     try {
         //Set network
         let networkDetails = (network === 'main') ? config.networks.main : config.networks.testnet;
@@ -174,7 +174,7 @@ async function sendTransaction(to, amount, network, privateKey, token = 'CELO', 
         return ({
             date: new Date(),
             transactionHash: receipt.transactionHash,
-            transactionLink: networkDetails.transactionLink(tx.hash),
+            transactionLink: networkDetails.transactionLink(receipt.transactionHash),
             network: networkDetails.networkName,
             gas: tx.gasUsed,
             gasCostInCrypto: Number(_toDecimal((tx.gasPrice * tx.gasLimit), 18)),

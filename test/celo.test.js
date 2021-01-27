@@ -68,13 +68,14 @@ describe("CELO-mainet module", () => {
     it("should sendTransaction sending CELO", async function () {
         this.timeout(mainTimeout * 3);
 
-        const result = await celoLib.sendTransaction(
-            toWalletAddress,
+        const result = await celoLib.sendTransaction({
+            to: toWalletAddress,
             amount,
             network,
             privateKey,
-            'celo',
-            'celo');
+            token: 'celo',
+            feeCurrency: 'celo'
+        });
 
         assert.hasAllKeys(result, keys.sendTransaction);
         runtime.celoTransactionHash = result.transactionHash;
@@ -83,13 +84,14 @@ describe("CELO-mainet module", () => {
     it("should sendTransaction sending cUSD", async function () {
         this.timeout(mainTimeout * 3);
 
-        const result = await celoLib.sendTransaction(
-            toWalletAddress,
+        const result = await celoLib.sendTransaction({
+            to: toWalletAddress,
             amount,
             network,
             privateKey,
-            'cusd',
-            'cusd');
+            token: 'cusd',
+            feeCurrency: 'cusd'
+        });
 
         from = result.from
 
@@ -102,14 +104,14 @@ describe("CELO-mainet module", () => {
 
         amount = celoLib.getBalance(from, network)
         amount += 1
-
-        await expect(celoLib.sendTransaction(
-            toWalletAddress,
+        await expect(celoLib.sendTransaction({
+            to: toWalletAddress,
             amount,
             network,
             privateKey,
-            'celo',
-            'celo')).to.be.rejectedWith(Error)
+            token: 'celo',
+            feeCurrency: 'celo'
+        })).to.be.rejectedWith(Error)
     });
 
     it("should fail sending too much cUSD", async function () {
@@ -118,13 +120,14 @@ describe("CELO-mainet module", () => {
         amount = celoLib.getBalance(from, network)
         amount += 1
 
-        await expect(celoLib.sendTransaction(
-            toWalletAddress,
+        await expect(celoLib.sendTransaction({
+            to: toWalletAddress,
             amount,
             network,
             privateKey,
-            'cusd',
-            'cusd')).to.be.rejectedWith(Error)
+            token: 'cusd',
+            feeCurrency: 'cusd'
+        })).to.be.rejectedWith(Error)
     });
 
     it("should fail with unrecognized token", async function () {
@@ -133,13 +136,14 @@ describe("CELO-mainet module", () => {
         amount = celoLib.getBalance(from, network)
         amount += 1
 
-        await expect(celoLib.sendTransaction(
-            toWalletAddress,
+        await expect(celoLib.sendTransaction({
+            to: toWalletAddress,
             amount,
             network,
             privateKey,
-            'aaa',
-            'aaa')).to.be.rejectedWith(Error)
+            token: 'aaa',
+            feeCurrency: 'aaa'
+        })).to.be.rejectedWith(Error)
     });
 
     it("should get Celo Transaction", async function () {
