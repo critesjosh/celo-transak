@@ -127,7 +127,7 @@ async function getTransaction(hash, network) {
     }
 }
 
-async function sendTransaction(to, amount, network, privateKey, token = 'CELO', feeCurrency = 'CELO') {
+async function sendTransaction({to, amount, network, privateKey, token = 'CELO', feeCurrency = 'CELO'}) {
     try {
         //Set network
         let networkDetails = (network === 'main') ? config.networks.main : config.networks.testnet;
